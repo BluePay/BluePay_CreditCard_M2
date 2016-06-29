@@ -20,4 +20,4 @@ php bin/magento module:enable BluePay_CreditCard --clear-static-content
 php bin/magento setup:upgrade
 ```
 
-At this point, the module should be fully installed. Finally, log into your Magento admin section and navigate to Stores -> Configuration -> Payment Methods -> BluePay Credit Card to finish the setup.
+At this point, the module should be fully installed. Finally, log into your Magento admin section and navigate to Stores -> Configuration -> Sales -> Payment Methods -> BluePay (Credit Card) to finish the setup.
