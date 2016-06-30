@@ -21,7 +21,10 @@
     "autoload": {
         "files": [
             "registration.php"
-        ]
+        ],
+        "psr-4": {
+            "BluePay\\CreditCard\\": ""
+        }
     },
     "extra": {
         "map": [
