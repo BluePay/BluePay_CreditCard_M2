@@ -100,12 +100,7 @@ class CCPayment extends \Magento\Payment\Model\Method\Cc
      *
      * @var array
      */
-    protected $_debugReplacePrivateDataKeys = array('x_login', 'x_tran_key',
-                                                    'x_card_num', 'x_exp_date',
-                                                    'x_card_code', 'x_bank_aba_code',
-                                                    'x_bank_name', 'x_bank_acct_num',
-                                                    'x_bank_acct_type','x_bank_acct_name',
-                                                    'x_echeck_type');
+    //protected $_debugReplacePrivateDataKeys = array('');
 
     /**
      * @var \Magento\Authorizenet\Helper\Data
@@ -494,7 +489,6 @@ class CCPayment extends \Magento\Payment\Model\Method\Cc
 
     protected function _postRequest(\Magento\Framework\DataObject $request)
     {
-       	$debugData = array('request' => $request->getData());
        	$result = $this->responseFactory->create();
 	if (isset($_POST["?Result"])) {
 		$_POST["Result"] = $_POST["?Result"];
@@ -516,9 +510,11 @@ class CCPayment extends \Magento\Payment\Model\Method\Cc
             	    $response = $client->request();
         	}
         	catch (Exception $e) {
+                if ($this->getConfigData('debug')) {
             	    $debugData['result'] = $result->getData();
             	    $this->_debug($debugData);
                     throw new \Magento\Framework\Exception\LocalizedException($this->_wrapGatewayError($e->getMessage()));
+                }
         	}
 		$r = substr($response->getHeader('location'), strpos($response->getHeader('location'), "?") + 1);
         	if ($r) {
@@ -550,9 +546,17 @@ class CCPayment extends \Magento\Payment\Model\Method\Cc
         	else {
              	    throw new \Magento\Framework\Exception\LocalizedException(__('Error in payment gateway.'));
         	}
-
-        	$debugData['result'] = $result->getData();
-        	$this->_debug($debugData);
+            if ($this->getConfigData('debug')) {
+                $requestDebug = clone $request;
+                foreach ($this->_debugReplacePrivateDataKeys as $key) {
+                    if ($requestDebug->hasData($key)) {
+                        $requestDebug->setData($key, '***');
+                    }
+                }
+                $debugData = array('request' => $requestDebug);
+                $debugData['result'] = $result->getData();
+                $this->_debug($debugData);
+            }
 	} else {
 		$result->setResult($_POST["Result"]);
 		$result->setMessage($_POST["MESSAGE"]);
@@ -608,8 +612,6 @@ class CCPayment extends \Magento\Payment\Model\Method\Cc
             $response = $client->request();
         }
         catch (Exception $e) {
-
-            $this->_debug($debugData);
             throw new \Magento\Framework\Exception\LocalizedException($this->_wrapGatewayError($e->getMessage()));
         }
 	$p = parse_str($client->request()->getBody());
