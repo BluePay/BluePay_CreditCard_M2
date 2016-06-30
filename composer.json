@@ -22,9 +22,6 @@
         "files": [
             "registration.php"
     ],
-    "psr-4": {
-        "BluePay\\": "bluepay"
-    },
     "extra": {
         "map": [
             [
